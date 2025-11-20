@@ -88,7 +88,7 @@ const App = () => {
   return (
     <div className="max-w-md mx-auto h-screen bg-[#FAFAF8] shadow-2xl overflow-hidden relative font-sans">
       {/* Debug Navigation Overlay */}
-      <div className="fixed bottom-4 right-4 z-[100] flex items-center gap-2 bg-black/80 backdrop-blur-md p-2 rounded-full shadow-2xl border border-white/20">
+      <div className="fixed bottom-24 right-4 z-[100] flex items-center gap-2 bg-black/80 backdrop-blur-md p-2 rounded-full shadow-2xl border border-white/20 opacity-80 hover:opacity-100 transition-opacity">
           <button onClick={handlePrevDebug} className="p-2 text-white hover:bg-white/20 rounded-full transition-colors">
               <ChevronLeft size={16} />
           </button>
