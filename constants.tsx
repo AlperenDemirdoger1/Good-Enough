@@ -1,6 +1,6 @@
 import React from 'react';
 import { LibraryItem, TestItem } from './types';
-import { BookOpen, BrainCircuit, HeartHandshake, Zap, Users, MessageCircle } from 'lucide-react';
+import { BookOpen, BrainCircuit, HeartHandshake, Zap, Users, MessageCircle, LayoutDashboard, User } from 'lucide-react';
 
 export const LIBRARY_ITEMS: LibraryItem[] = [
   { id: '1', title: 'Dopamin Menüsü Nedir?', category: 'Strateji', readTime: '3 dk', icon: <Zap size={20} /> },
@@ -14,7 +14,8 @@ export const TEST_ITEMS: TestItem[] = [
 ];
 
 export const NAV_ITEMS = [
-  { id: 'chat', label: 'Koç', icon: MessageCircle },
-  { id: 'community', label: 'Köy', icon: Users },
+  { id: 'home', label: 'Kontrol', icon: LayoutDashboard },
   { id: 'library', label: 'Rehber', icon: BookOpen },
+  { id: 'chat', label: 'Koç', icon: MessageCircle },
+  { id: 'profile', label: 'Profil', icon: User },
 ];
