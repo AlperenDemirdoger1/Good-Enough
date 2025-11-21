@@ -19,7 +19,10 @@ import {
   CheckCircle,
   ArrowRight,
   Users,
-  TrendingUp
+  TrendingUp,
+  Headphones,
+  Video,
+  Wrench
 } from 'lucide-react';
 
 interface DashboardScreenProps {
@@ -123,6 +126,206 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
     }, 2000);
   };
 
+  // Get icon for lesson type
+  const getLessonIcon = (type: string) => {
+    switch(type) {
+      case 'audio': return Headphones;
+      case 'video': return Video;
+      case 'article': return BookOpen;
+      case 'tool': return Wrench;
+      default: return BookOpen;
+    }
+  };
+
+  // Render Academy Tab (Wiser/Masterclass Style)
+  const renderAcademy = () => (
+    <div className="space-y-8 pb-6 pt-2">
+      {/* Page Header */}
+      <div className="text-center px-4">
+        <h2 className="text-2xl font-serif text-stone-800 mb-2">Akademi</h2>
+        <p className="text-sm text-stone-500 leading-relaxed">
+          Bilim ve empati temelli öğrenme yolculuğuna hoş geldin.
+        </p>
+      </div>
+
+      {/* Learning Tracks */}
+      {learningTracks.map((track, trackIdx) => (
+        <div key={track.id} className="relative">
+          {/* Track Card */}
+          <div className="bg-stone-50 rounded-3xl p-6 border border-stone-200 shadow-sm">
+            {/* Track Header */}
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  {track.status === 'unlocked' && (
+                    <div className="px-2 py-1 bg-teal-100 rounded-full">
+                      <span className="text-[9px] font-bold text-teal-700 uppercase tracking-wider">Ücretsiz</span>
+                    </div>
+                  )}
+                  {track.status === 'freemium' && (
+                    <div className="px-2 py-1 bg-indigo-100 rounded-full">
+                      <span className="text-[9px] font-bold text-indigo-700 uppercase tracking-wider">Freemium</span>
+                    </div>
+                  )}
+                  {track.status === 'premium' && (
+                    <div className="px-2 py-1 bg-orange-100 rounded-full flex items-center space-x-1">
+                      <Lock size={10} className="text-orange-700" />
+                      <span className="text-[9px] font-bold text-orange-700 uppercase tracking-wider">Premium</span>
+                    </div>
+                  )}
+                </div>
+                <span className="text-xs font-medium text-stone-400">{track.progress}/{track.total}</span>
+              </div>
+
+              <h3 className="text-lg font-serif text-stone-900 leading-tight mb-1">
+                {track.title}
+              </h3>
+              <p className="text-xs text-stone-500">{track.subtitle}</p>
+
+              {/* Progress Bar */}
+              <div className="mt-3 h-1.5 w-full bg-stone-200 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(track.progress / track.total) * 100}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: track.accentColor }}
+                />
+              </div>
+            </div>
+
+            {/* Lessons Timeline */}
+            <div className="space-y-0 relative">
+              {/* Vertical Timeline Line */}
+              <div className="absolute left-[19px] top-2 bottom-2 w-[2px] bg-stone-200"></div>
+
+              {track.lessons.map((lesson, lessonIdx) => {
+                const LessonIcon = getLessonIcon(lesson.type);
+                const isLocked = lesson.status === 'locked';
+
+                return (
+                  <motion.button
+                    key={lesson.id}
+                    whileTap={{ scale: isLocked ? 1 : 0.98 }}
+                    disabled={isLocked}
+                    className={`w-full flex items-center space-x-4 p-3 rounded-2xl transition-all relative ${
+                      isLocked
+                        ? 'opacity-60 cursor-not-allowed'
+                        : 'hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    {/* Icon Circle */}
+                    <div
+                      className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${
+                        isLocked ? 'bg-stone-200' : 'bg-white'
+                      }`}
+                      style={{
+                        borderColor: isLocked ? '#D4D4D8' : track.accentColor,
+                        borderWidth: '2px'
+                      }}
+                    >
+                      {isLocked ? (
+                        <Lock size={16} className="text-stone-400" />
+                      ) : (
+                        <LessonIcon size={16} style={{ color: track.accentColor }} />
+                      )}
+                    </div>
+
+                    {/* Lesson Info */}
+                    <div className="flex-1 text-left">
+                      <h4 className={`text-sm font-medium leading-tight mb-0.5 ${
+                        isLocked ? 'text-stone-400' : 'text-stone-900'
+                      }`}>
+                        {lesson.title}
+                      </h4>
+                      <p className="text-xs text-stone-400">{lesson.duration}</p>
+                    </div>
+
+                    {/* Status Indicator */}
+                    <div>
+                      {isLocked ? (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                          <Lock size={14} className="text-white" />
+                        </div>
+                      ) : (
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: track.accentColor }}
+                        >
+                          <PlayCircle size={16} className="text-white" fill="white" />
+                        </div>
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* CTA for Premium */}
+      <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 border border-amber-200 text-center">
+        <Sparkles size={24} className="text-orange-600 mx-auto mb-3" />
+        <h3 className="text-lg font-serif text-stone-900 mb-2">Tüm Akademiye Erişim</h3>
+        <p className="text-sm text-stone-600 mb-4 leading-relaxed">
+          30+ uzman dersine, kişiselleştirilmiş içeriğe ve topluluk desteğine hemen ulaş.
+        </p>
+        <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all">
+          Premium'a Geç →
+        </button>
+      </div>
+    </div>
+  );
+
+  // Academy Data - Learning Tracks (Masterclass Style)
+  const learningTracks = [
+    {
+      id: 1,
+      title: 'Sakin Ebeveyn Başlangıç Seti',
+      subtitle: 'Kriz yönetimi ve temel stratejiler',
+      progress: 0,
+      total: 3,
+      color: 'teal',
+      accentColor: '#14B8A6',
+      status: 'unlocked',
+      lessons: [
+        { id: 1, title: 'Acil Durum: Kriz Anında 3 Dakikada Sakinleş', type: 'audio', duration: '3 dk', status: 'unlocked' },
+        { id: 2, title: 'Çocuğun Neden Dinlemiyor? İnat Değil, Nöroloji.', type: 'article', duration: '5 dk', status: 'unlocked' },
+        { id: 3, title: 'Sabah Kaosunu Önleyen 3 Sihirli Cümle', type: 'tool', duration: '2 dk', status: 'unlocked' }
+      ]
+    },
+    {
+      id: 2,
+      title: 'DEHB Beynini Şifrelemek',
+      subtitle: 'Nöroloji ve bilim temelli anlayış',
+      progress: 1,
+      total: 3,
+      color: 'indigo',
+      accentColor: '#6366F1',
+      status: 'freemium',
+      lessons: [
+        { id: 1, title: 'Dopamin 101: Çocuğunun Yakıtını Tanı', type: 'video', duration: '8 dk', status: 'unlocked' },
+        { id: 2, title: 'Yürütücü İşlevler: Beynin CEO\'su Nerede?', type: 'audio', duration: '6 dk', status: 'locked' },
+        { id: 3, title: 'Hiperodaklanma: Süper Güç Mü?', type: 'article', duration: '4 dk', status: 'locked' }
+      ]
+    },
+    {
+      id: 3,
+      title: 'Duygusal Düzenleme Masterclass',
+      subtitle: 'İleri seviye duygu yönetimi',
+      progress: 0,
+      total: 2,
+      color: 'orange',
+      accentColor: '#F97316',
+      status: 'premium',
+      lessons: [
+        { id: 1, title: 'Öfke Buzdağı: Görünenin Altı', type: 'audio', duration: '7 dk', status: 'locked' },
+        { id: 2, title: 'Vurma Davranışını Yönetmek', type: 'article', duration: '6 dk', status: 'locked' }
+      ]
+    }
+  ];
+
   // Discovery Rail - 3 Pillars (Education, Discovery, Community)
   const discoveryCards = [
     {
@@ -181,10 +384,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-24 px-6 space-y-6 scrollbar-hide relative z-10 pt-2">
-        
-        {/* 1. TODAY'S FOCUS - ROUTINES (Dynamic Task List) */}
-        <section>
+      <div className="flex-1 overflow-y-auto pb-24 px-6 scrollbar-hide relative z-10 pt-2">
+        {activeTab === 'home' && (
+          <div className="space-y-6">
+            {/* 1. TODAY'S FOCUS - ROUTINES (Dynamic Task List) */}
+            <section>
           <div className="flex items-center justify-between mb-3 px-1">
             <h3 className="text-sm font-serif text-[#2D3748]">Bugünün Odağı</h3>
             <button 
@@ -525,7 +729,32 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
                 </div>
             </div>
         </section>
+          </div>
+        )}
 
+        {/* Academy Tab */}
+        {activeTab === 'academy' && renderAcademy()}
+
+        {/* Discover Tab - Coming Soon */}
+        {activeTab === 'discover' && (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-stone-400">Keşfet sekmesi yakında...</p>
+          </div>
+        )}
+
+        {/* Community Tab - Coming Soon */}
+        {activeTab === 'community' && (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-stone-400">Topluluk sekmesi yakında...</p>
+          </div>
+        )}
+
+        {/* Coach Tab - Coming Soon */}
+        {activeTab === 'coach' && (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-stone-400">Koç sekmesi yakında...</p>
+          </div>
+        )}
       </div>
 
       {/* Add Task Modal */}
