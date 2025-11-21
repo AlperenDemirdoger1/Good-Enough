@@ -1,6 +1,6 @@
 import React from 'react';
 import { LibraryItem, TestItem } from './types';
-import { BookOpen, BrainCircuit, HeartHandshake, Zap, Users, MessageCircle, LayoutDashboard, User } from 'lucide-react';
+import { BookOpen, BrainCircuit, HeartHandshake, Zap, Users, MessageCircle, LayoutDashboard, Compass } from 'lucide-react';
 
 export const LIBRARY_ITEMS: LibraryItem[] = [
   { id: '1', title: 'Dopamin Menüsü Nedir?', category: 'Strateji', readTime: '3 dk', icon: <Zap size={20} /> },
@@ -13,9 +13,11 @@ export const TEST_ITEMS: TestItem[] = [
   { id: '2', title: 'Yürütücü İşlevler Kontrolü', description: 'Planlama ve odaklanma becerileri.', questions: 15 },
 ];
 
+// Updated Navigation - User Journey Focused
 export const NAV_ITEMS = [
-  { id: 'home', label: 'Kontrol', icon: LayoutDashboard },
-  { id: 'library', label: 'Rehber', icon: BookOpen },
-  { id: 'chat', label: 'Koç', icon: MessageCircle },
-  { id: 'profile', label: 'Profil', icon: User },
+  { id: 'home', label: 'Ana Sayfa', icon: LayoutDashboard },
+  { id: 'academy', label: 'Akademi', icon: BookOpen },
+  { id: 'discover', label: 'Keşfet', icon: Compass },
+  { id: 'community', label: 'Topluluk', icon: Users },
+  { id: 'coach', label: 'Koç', icon: MessageCircle },
 ];

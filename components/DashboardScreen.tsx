@@ -17,7 +17,9 @@ import {
   Mic,
   Zap,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Users,
+  TrendingUp
 } from 'lucide-react';
 
 interface DashboardScreenProps {
@@ -33,7 +35,7 @@ interface Task {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => {
-  const [activeTab, setActiveTab] = useState('chat');
+  const [activeTab, setActiveTab] = useState('home');
   const [tasks, setTasks] = useState<Task[]>([
     { id: '1', title: 'Ayakkabılarını Giy', emoji: '👟', time: '08:00', status: 'pending' },
     { id: '2', title: 'Kahvaltı Yap', emoji: '🥐', time: '08:30', status: 'pending' },
@@ -121,38 +123,43 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
     }, 2000);
   };
 
-  // Mock Data for Discovery Carousel
-  const discoveryItems = [
-    { 
-      id: 1, 
-      type: 'test', 
-      title: 'Ebeveynlik Stilin Ne?', 
-      subtitle: '3 dakikalık test',
-      icon: BrainCircuit, 
-      color: 'bg-[#E8C3B0]',
-      textColor: 'text-[#9C4221]',
-      isLocked: false 
+  // Discovery Rail - 3 Pillars (Education, Discovery, Community)
+  const discoveryCards = [
+    {
+      id: 1,
+      type: 'learning',
+      pillar: 'Akademi',
+      tag: 'Modül 2',
+      title: 'Sınır Koyma Sanatı',
+      subtitle: 'Ders 3: Hayır Diyebilmek',
+      progress: 40,
+      duration: '5 dk',
+      icon: PlayCircle,
+      deepLink: 'academy'
     },
-    { 
-      id: 2, 
-      type: 'article', 
-      title: '2 Yaş Sendromu Kılavuzu', 
-      subtitle: 'Kriz anında ne yapmalı?',
-      icon: BookOpen, 
-      color: 'bg-[#7E9F95]',
-      textColor: 'text-[#2C5248]',
-      isLocked: true 
+    {
+      id: 2,
+      type: 'quiz',
+      pillar: 'Keşfet',
+      tag: 'Yeni',
+      title: `${profile.name}'ın Sevgi Dili Ne?`,
+      subtitle: '3 dakikalık test ile keşfet',
+      duration: '3 dk',
+      icon: BrainCircuit,
+      deepLink: 'discover',
+      isLocked: false
     },
-    { 
-      id: 3, 
-      type: 'course', 
-      title: 'Sınır Koyma Sanatı', 
-      subtitle: 'Ders 4: Hayır Diyebilmek',
-      icon: PlayCircle, 
-      color: 'bg-[#D8E2DC]',
-      textColor: 'text-[#4A5568]',
-      isLocked: true 
-    },
+    {
+      id: 3,
+      type: 'poll',
+      pillar: 'Topluluk',
+      tag: 'Günün Anketi',
+      title: 'Çocuğunuz kaç saat ekran kullanıyor?',
+      subtitle: '15k anne katıldı. Sonuçları gör.',
+      pollData: { optionA: 65, optionB: 35 },
+      icon: Users,
+      deepLink: 'community'
+    }
   ];
 
   return (
@@ -361,42 +368,148 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
           )}
         </section>
 
-        {/* 3. DISCOVERY CAROUSEL (Discovery - Upsell) */}
+        {/* 3. DISCOVERY RAIL (3 Pillars: Education, Discovery, Community) */}
         <section>
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-sm font-serif text-[#2D3748] italic">Günün Keşifleri</h3>
-                <span className="text-[10px] text-[#7E9F95] font-medium">Tümünü Gör</span>
+                <h3 className="text-sm font-serif text-[#2D3748] italic">Bugün Senin İçin</h3>
             </div>
             
-            {/* Horizontal Scroll Container */}
-            <div className="flex space-x-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide snap-x">
-                {discoveryItems.map((item) => (
-                    <motion.div 
-                        key={item.id}
-                        whileTap={{ scale: 0.95 }}
-                        className={`min-w-[150px] h-40 rounded-3xl p-4 flex flex-col justify-between relative snap-start shadow-[0_4px_15px_rgba(0,0,0,0.03)] border border-white/50 ${item.color}/20`}
-                    >
-                        <div className="flex justify-between items-start">
-                            <div className={`p-2 rounded-full bg-white/60 ${item.textColor}`}>
-                                <item.icon size={16} />
-                            </div>
-                            {item.isLocked && (
-                                <div className="bg-white/80 p-1.5 rounded-full">
-                                    <Lock size={12} className="text-[#D68C7F]" />
-                                </div>
-                            )}
-                        </div>
+            {/* Horizontal Scroll - Cards Peek from Right */}
+            <div className="flex space-x-3 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide snap-x">
+                {discoveryCards.map((card, idx) => {
+                  const IconComponent = card.icon;
+                  
+                  // Card 1: Continue Learning (Netflix Effect)
+                  if (card.type === 'learning') {
+                    return (
+                      <motion.button
+                        key={card.id}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => setActiveTab(card.deepLink)}
+                        className="min-w-[280px] bg-white rounded-3xl p-5 border-2 border-[#7E9F95] shadow-lg snap-start relative overflow-hidden"
+                      >
+                        {/* Active Highlight */}
+                        <div className="absolute top-0 left-0 w-1 h-full bg-[#7E9F95]"></div>
                         
-                        <div>
-                            <h4 className={`text-sm font-semibold leading-tight mb-1 ${item.textColor}`}>
-                                {item.title}
-                            </h4>
-                            <p className={`text-[10px] opacity-80 ${item.textColor}`}>
-                                {item.subtitle}
-                            </p>
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 rounded-xl bg-[#7E9F95]/10 flex items-center justify-center">
+                              <IconComponent size={16} className="text-[#7E9F95]" />
+                            </div>
+                            <span className="text-[10px] font-bold text-[#7E9F95] uppercase tracking-wider">{card.tag}</span>
+                          </div>
+                          <span className="text-[10px] text-[#A0AEC0] font-medium">{card.duration}</span>
                         </div>
-                    </motion.div>
-                ))}
+
+                        <h4 className="text-sm font-bold text-[#2D3748] leading-tight mb-1 text-left">
+                          {card.title}
+                        </h4>
+                        <p className="text-xs text-[#718096] mb-3 text-left">{card.subtitle}</p>
+
+                        {/* Progress Bar */}
+                        <div className="relative">
+                          <div className="h-2 w-full bg-[#F7FAFC] rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${card.progress}%` }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                              className="h-full bg-gradient-to-r from-[#7E9F95] to-[#5F8A7E] rounded-full"
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold text-[#7E9F95] mt-1 block">{card.progress}% Tamamlandı</span>
+                        </div>
+                      </motion.button>
+                    );
+                  }
+
+                  // Card 2: Weekly Discovery (Quiz Hook)
+                  if (card.type === 'quiz') {
+                    return (
+                      <motion.button
+                        key={card.id}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => setActiveTab(card.deepLink)}
+                        className="min-w-[240px] bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl p-5 border border-purple-200 shadow-sm snap-start relative overflow-hidden"
+                      >
+                        {/* Decorative Element */}
+                        <div className="absolute -top-6 -right-6 w-24 h-24 bg-purple-200/30 rounded-full blur-2xl"></div>
+                        
+                        <div className="relative z-10">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="px-2 py-1 bg-purple-200/50 rounded-full">
+                              <span className="text-[9px] font-bold text-purple-700 uppercase tracking-wider">{card.tag}</span>
+                            </div>
+                            <span className="text-[10px] text-purple-600 font-medium">{card.duration}</span>
+                          </div>
+
+                          {/* Icon - Make it look like a "Mission" */}
+                          <div className="w-12 h-12 mb-3 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center shadow-lg">
+                            <IconComponent size={24} className="text-white" />
+                          </div>
+
+                          <h4 className="text-sm font-bold text-purple-900 leading-tight mb-1 text-left">
+                            {card.title}
+                          </h4>
+                          <p className="text-xs text-purple-600 text-left">{card.subtitle}</p>
+                        </div>
+                      </motion.button>
+                    );
+                  }
+
+                  // Card 3: Community Poll
+                  if (card.type === 'poll') {
+                    return (
+                      <motion.button
+                        key={card.id}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => setActiveTab(card.deepLink)}
+                        className="min-w-[240px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-5 border border-amber-200 shadow-sm snap-start relative overflow-hidden"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="px-2 py-1 bg-amber-200/50 rounded-full">
+                            <span className="text-[9px] font-bold text-amber-700 uppercase tracking-wider">{card.tag}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <TrendingUp size={12} className="text-amber-600" />
+                            <span className="text-[10px] text-amber-600 font-medium">Canlı</span>
+                          </div>
+                        </div>
+
+                        {/* Mini Poll Widget */}
+                        <div className="mb-3">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-amber-200/50 flex items-center justify-center">
+                              <IconComponent size={16} className="text-amber-700" />
+                            </div>
+                            <div className="text-xs text-amber-900 font-semibold text-left flex-1">
+                              {card.title}
+                            </div>
+                          </div>
+
+                          {/* Poll Bars */}
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <div className="flex-1 h-2 bg-amber-200/50 rounded-full overflow-hidden">
+                                <div style={{ width: `${card.pollData?.optionA}%` }} className="h-full bg-amber-500"></div>
+                              </div>
+                              <span className="text-[10px] font-bold text-amber-700">{card.pollData?.optionA}%</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="flex-1 h-2 bg-amber-200/50 rounded-full overflow-hidden">
+                                <div style={{ width: `${card.pollData?.optionB}%` }} className="h-full bg-orange-400"></div>
+                              </div>
+                              <span className="text-[10px] font-bold text-orange-600">{card.pollData?.optionB}%</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-amber-600 text-left">{card.subtitle}</p>
+                      </motion.button>
+                    );
+                  }
+
+                  return null;
+                })}
             </div>
         </section>
 
