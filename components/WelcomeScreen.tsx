@@ -55,13 +55,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onDebugDa
   return (
     <div className="h-full w-full bg-[#FAFAF8] flex flex-col relative overflow-hidden">
       
-      {/* Debug Button */}
+      {/* Debug Button (Belirgin) */}
       {onDebugDashboard && (
         <button 
           onClick={onDebugDashboard}
-          className="absolute top-4 left-4 z-50 p-2 bg-gray-200 rounded opacity-50 text-[10px] hover:opacity-100"
+          className="absolute top-6 left-6 z-50 px-4 py-2 bg-slate-900 text-white rounded-2xl text-xs font-bold shadow-xl hover:scale-105 transition-transform border border-white/20 backdrop-blur-sm"
         >
-          Skip to Dashboard
+          🚀 Dashboard
         </button>
       )}
       

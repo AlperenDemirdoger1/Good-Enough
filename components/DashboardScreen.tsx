@@ -27,6 +27,46 @@ interface DashboardScreenProps {
   profile: ChildProfile;
 }
 
+// --- MILA LOGO COMPONENT ---
+const MilaLogo = ({ size = 40 }: { size?: number }) => (
+  <svg viewBox="0 0 100 100" width={size} height={size} className="flex-shrink-0">
+    <path 
+      d="M30 20 Q 20 30, 20 45 Q 20 65, 35 75 Q 45 82, 50 85 Q 45 80, 40 70 Q 35 60, 35 45 Q 35 30, 40 25 Z" 
+      fill="none" 
+      stroke="#7E9F95" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="opacity-90"
+    />
+    <path 
+      d="M 40 25 Q 50 15, 60 20 Q 70 25, 75 35" 
+      fill="none" 
+      stroke="#7E9F95" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      className="opacity-90"
+    />
+    <path 
+      d="M 50 45 Q 55 40, 62 42 Q 68 44, 70 50 Q 72 58, 68 65 Q 64 70, 58 70 Q 52 70, 48 65" 
+      fill="none" 
+      stroke="#D68C7F" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="60" cy="50" r="8" fill="#D68C7F" opacity="0.15" />
+    <path 
+      d="M 75 35 Q 78 45, 75 55 Q 72 65, 65 72" 
+      fill="none" 
+      stroke="#D68C7F" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      className="opacity-85"
+    />
+  </svg>
+);
+
 // --- MOCK DATA ---
 
 const SOS_ACTIONS = [
@@ -435,6 +475,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
           );
         })}
       </div>
-                  </div>
+    </div>
   );
 };
+
+export { DashboardScreen };

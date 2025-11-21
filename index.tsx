@@ -36,6 +36,19 @@ const App = () => {
   };
 
   const handleUnlock = () => {
+    // Eğer profile yoksa (debug flow), mock data ekle
+    if (!profile) {
+      setProfile({
+        parentName: 'Debug Parent',
+        name: 'Can',
+        age: '6',
+        gender: 'Erkek',
+        engine: 'Keşif Enerjisi 🚀',
+        brake: 'Zaman Bükücü ⏳',
+        rsd: 'Cam Kalp 💎',
+        nervousSystem: 'Güvende 🌿',
+      });
+    }
     setStep(AppStep.DASHBOARD);
   };
 
