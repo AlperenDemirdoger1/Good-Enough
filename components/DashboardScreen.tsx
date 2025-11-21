@@ -5,56 +5,40 @@ import { NAV_ITEMS } from '../constants';
 import { 
   Sparkles, 
   Bell, 
-  Search, 
-  Lock, 
-  Trophy, 
-  ChevronRight, 
-  PlayCircle, 
-  BrainCircuit, 
-  BookOpen, 
-  Star
+  Zap,
+  Lock,
+  CheckCircle,
+  ChevronRight,
+  Battery,
+  BatteryLow,
+  AlertCircle,
+  Lightbulb
 } from 'lucide-react';
 
 interface DashboardScreenProps {
   profile: ChildProfile;
 }
 
+// MOCK DATA (Replace with real data later)
+const CRISIS_SCENARIOS = [
+  "Vuruyor / Fiziksel Saldırganlık",
+  "Dinlemiyor / Yok Sayıyor",
+  "Öfke Nöbeti / Tantrum",
+  "Ekran Bırakmıyor",
+  "Uyumak İstemiyor",
+  "Yemek Yemiyor"
+];
+
+const ROUTINE_TASKS = [
+  { id: 1, title: "Ödev Zamanı", status: "active", icon: "📚", timeLeft: "20dk" },
+  { id: 2, title: "Ekran Süresi", status: "locked", icon: "🎮", reward: "30dk", prerequisite: 1 },
+  { id: 3, title: "Akşam Yemeği", status: "pending", icon: "🍽️", time: "18:30" },
+];
+
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => {
   const [activeTab, setActiveTab] = useState('chat');
-
-  // Mock Data for Discovery Carousel
-  const discoveryItems = [
-    { 
-      id: 1, 
-      type: 'test', 
-      title: 'Ebeveynlik Stilin Ne?', 
-      subtitle: '3 dakikalık test',
-      icon: BrainCircuit, 
-      color: 'bg-[#E8C3B0]',
-      textColor: 'text-[#9C4221]',
-      isLocked: false 
-    },
-    { 
-      id: 2, 
-      type: 'article', 
-      title: '2 Yaş Sendromu Kılavuzu', 
-      subtitle: 'Kriz anında ne yapmalı?',
-      icon: BookOpen, 
-      color: 'bg-[#7E9F95]',
-      textColor: 'text-[#2C5248]',
-      isLocked: true 
-    },
-    { 
-      id: 3, 
-      type: 'course', 
-      title: 'Sınır Koyma Sanatı', 
-      subtitle: 'Ders 4: Hayır Diyebilmek',
-      icon: PlayCircle, 
-      color: 'bg-[#D8E2DC]',
-      textColor: 'text-[#4A5568]',
-      isLocked: true 
-    },
-  ];
+  const [selectedCrisis, setSelectedCrisis] = useState('');
+  const [parentEnergy, setParentEnergy] = useState(calculateParentEnergy(profile.nervousSystem));
 
   return (
     <div className="h-full bg-[#FAFAF8] flex flex-col relative overflow-hidden">
@@ -63,10 +47,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       <div className="absolute top-[10%] right-[-10%] w-72 h-72 bg-[#E8C3B0] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
 
       {/* Header */}
-      <div className="pt-12 px-6 pb-2 flex justify-between items-center relative z-10">
+      <div className="pt-10 px-6 pb-3 flex justify-between items-center relative z-10 bg-[#FAFAF8]/95 backdrop-blur-sm">
         <div>
-          <p className="text-[#A0AEC0] text-[10px] uppercase tracking-wider font-medium">İyi ki geldin,</p>
-          <h1 className="text-xl font-serif text-[#2D3748]">Merhaba {profile.parentName}</h1>
+          <p className="text-[#A0AEC0] text-[10px] uppercase tracking-wider font-medium">Kontrol Merkezi</p>
+          <h1 className="text-xl font-serif text-[#2D3748]">{profile.name} için Bugün</h1>
         </div>
         <div className="w-9 h-9 rounded-full bg-white border border-[#E2E8F0] flex items-center justify-center shadow-sm relative">
              <Bell size={16} className="text-[#7E9F95]" />
@@ -75,121 +59,201 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-24 px-6 space-y-6 scrollbar-hide relative z-10 pt-2">
+      <div className="flex-1 overflow-y-auto pb-24 px-6 space-y-5 scrollbar-hide relative z-10">
         
-        {/* 1. GAMIFICATION SECTION (Hero - Retention Hook) */}
-        <section>
-          <div className="bg-white rounded-3xl p-5 border border-[#F0F0F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden">
-              {/* Progress Header */}
-              <div className="flex justify-between items-end mb-3">
-                  <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                          <Trophy size={14} className="text-[#D68C7F]" />
-                          <span className="text-[10px] font-bold text-[#D68C7F] uppercase tracking-wider">Seviye 3</span>
-                      </div>
-                      <h3 className="text-lg font-serif text-[#2D3748] leading-none">Bilinçli Ebeveyn</h3>
+        {/* 1. HERO: SOS ACTION (Crisis Management) */}
+        <section className="mt-3">
+          <div className="bg-gradient-to-br from-[#D68C7F]/10 to-[#E8C3B0]/20 rounded-3xl p-5 border border-[#E8C3B0]/30 shadow-[0_4px_20px_rgba(214,140,127,0.08)] relative overflow-hidden">
+              {/* Background Accent */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#D68C7F]/10 rounded-bl-full"></div>
+              
+              <div className="relative z-10">
+                  <div className="flex items-center space-x-2 mb-3">
+                      <AlertCircle size={16} className="text-[#D68C7F]" />
+                      <span className="text-xs text-[#D68C7F] font-bold uppercase tracking-wider">SOS Destek</span>
                   </div>
-                  <div className="text-right">
-                      <span className="text-xs font-medium text-[#718096]">%65</span>
-                  </div>
-              </div>
+                  
+                  <h3 className="text-lg font-serif text-[#2D3748] leading-tight mb-4">
+                    {profile.name} ile şu an zorlanıyor musun?
+                  </h3>
+                  
+                  {/* Crisis Dropdown */}
+                  <select 
+                    value={selectedCrisis}
+                    onChange={(e) => setSelectedCrisis(e.target.value)}
+                    className="w-full p-3 mb-3 bg-white border border-[#E2E8F0] rounded-2xl text-sm text-[#4A4A4A] outline-none focus:border-[#D68C7F] focus:ring-2 focus:ring-[#D68C7F]/20"
+                  >
+                      <option value="">Ne oluyor şu an?</option>
+                      {CRISIS_SCENARIOS.map((scenario, idx) => (
+                          <option key={idx} value={scenario}>{scenario}</option>
+                      ))}
+                  </select>
 
-              {/* Progress Bar */}
-              <div className="h-2 w-full bg-[#F7FAFC] rounded-full mb-4 overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '65%' }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-[#D68C7F] to-[#E8C3B0] rounded-full"
-                  ></motion.div>
-              </div>
-
-              {/* Daily Task CTA */}
-              <div className="flex items-center justify-between bg-[#FAFAF8] rounded-2xl p-3 border border-[#F0F0F0]">
-                  <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-[#7E9F95]/10 flex items-center justify-center text-[#7E9F95]">
-                          <PlayCircle size={16} fill="currentColor" className="text-[#7E9F95]/20" />
-                      </div>
-                      <div>
-                          <p className="text-[10px] text-[#A0AEC0]">Bugünkü Görevin</p>
-                          <p className="text-xs font-medium text-[#2D3748]">Ders 4: Sınır Koyma</p>
-                      </div>
-                  </div>
-                  <button className="bg-[#2D3748] text-white rounded-full p-2 shadow-md hover:scale-105 transition-transform">
-                      <ChevronRight size={16} />
-                  </button>
+                  {/* Get Script Button */}
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    disabled={!selectedCrisis}
+                    className={`w-full py-3.5 rounded-2xl flex items-center justify-center font-semibold transition-all
+                        ${selectedCrisis 
+                            ? 'bg-[#D68C7F] text-white shadow-lg hover:shadow-xl' 
+                            : 'bg-[#E2E8F0] text-[#A0AEC0] cursor-not-allowed'}
+                    `}
+                  >
+                      <Zap size={18} className="mr-2" />
+                      <span>Hemen Senaryo Oluştur</span>
+                  </motion.button>
               </div>
           </div>
         </section>
 
-        {/* 2. Q&A SECTION (Utility - Engagement) */}
+        {/* 2. PARENT BATTERY (Self-Regulation Widget) */}
         <section>
-            <div className="relative group">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <Search size={18} className="text-[#A0AEC0]" />
+            <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                        {parentEnergy > 50 ? <Battery size={16} className="text-[#7E9F95]" /> : <BatteryLow size={16} className="text-[#D68C7F]" />}
+                        <span className="text-xs font-bold text-[#A0AEC0] uppercase tracking-wider">Senin Bataryan</span>
+                    </div>
+                    <span className="text-sm font-bold text-[#2D3748]">{parentEnergy}%</span>
                 </div>
-                <input 
-                    type="text" 
-                    placeholder={`Mila, ${profile.name} uyumuyor, ne yapmalıyım?`}
-                    className="w-full py-4 pl-12 pr-4 bg-white border border-[#E2E8F0] rounded-2xl text-sm text-[#4A4A4A] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7E9F95]/50 placeholder:text-[#A0AEC0] placeholder:font-light"
-                />
-                <div className="absolute inset-y-0 right-2 flex items-center">
-                    <button className="bg-[#7E9F95] text-white p-2 rounded-xl shadow-sm opacity-0 group-focus-within:opacity-100 transition-opacity">
-                        <ChevronRight size={16} />
+
+                {/* Energy Bar */}
+                <div className="h-3 w-full bg-[#F7FAFC] rounded-full mb-4 overflow-hidden">
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${parentEnergy}%` }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className={`h-full rounded-full ${
+                            parentEnergy > 60 ? 'bg-gradient-to-r from-[#7E9F95] to-[#5F8A7E]' :
+                            parentEnergy > 30 ? 'bg-gradient-to-r from-[#E8C3B0] to-[#D68C7F]' :
+                            'bg-gradient-to-r from-[#D68C7F] to-[#C76D5E]'
+                        }`}
+                    ></motion.div>
+                </div>
+
+                {/* Message */}
+                <p className="text-xs text-[#718096] mb-3 leading-relaxed">
+                    {parentEnergy > 60 
+                        ? "Harika! Bugün enerji seviyeniz yüksek görünüyor." 
+                        : parentEnergy > 30
+                        ? "Biraz yorgunsun. Belki kısa bir mola iyi gelir?"
+                        : "Enerjin düşük. Kendine 3 dakikalık bir zaman ayır."
+                    }
+                </p>
+
+                {/* Quick Repair Button */}
+                {parentEnergy < 60 && (
+                    <button className="w-full py-2.5 bg-[#FAFAF8] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#7E9F95] hover:bg-[#7E9F95]/5 transition-all flex items-center justify-center">
+                        <Sparkles size={14} className="mr-2" />
+                        <span>Hızlı Şarj Ol (3dk)</span>
                     </button>
-                </div>
+                )}
             </div>
         </section>
 
-        {/* 3. DISCOVERY CAROUSEL (Discovery - Upsell) */}
+        {/* 3. GAMIFIED ROUTINES (Horizontal Scroll) */}
         <section>
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-sm font-serif text-[#2D3748] italic">Günün Keşifleri</h3>
-                <span className="text-[10px] text-[#7E9F95] font-medium">Tümünü Gör</span>
+                <h3 className="text-sm font-serif text-[#2D3748] italic">Bugünkü Görevler</h3>
+                <span className="text-[10px] text-[#7E9F95] font-medium">Oyun Gibi →</span>
             </div>
             
             {/* Horizontal Scroll Container */}
-            <div className="flex space-x-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide snap-x">
-                {discoveryItems.map((item) => (
-                    <motion.div 
-                        key={item.id}
-                        whileTap={{ scale: 0.95 }}
-                        className={`min-w-[150px] h-40 rounded-3xl p-4 flex flex-col justify-between relative snap-start shadow-[0_4px_15px_rgba(0,0,0,0.03)] border border-white/50 ${item.color}/20`}
-                    >
-                        <div className="flex justify-between items-start">
-                            <div className={`p-2 rounded-full bg-white/60 ${item.textColor}`}>
-                                <item.icon size={16} />
+            <div className="flex space-x-4 overflow-x-auto pb-3 -mx-6 px-6 scrollbar-hide snap-x">
+                {ROUTINE_TASKS.map((task) => {
+                    const isActive = task.status === 'active';
+                    const isLocked = task.status === 'locked';
+                    const isPending = task.status === 'pending';
+
+                    return (
+                        <motion.div 
+                            key={task.id}
+                            whileTap={{ scale: isLocked ? 1 : 0.95 }}
+                            className={`min-w-[160px] h-44 rounded-3xl p-4 flex flex-col justify-between relative snap-start shadow-[0_4px_15px_rgba(0,0,0,0.04)] border
+                                ${isActive ? 'bg-gradient-to-br from-[#7E9F95]/20 to-[#5F8A7E]/10 border-[#7E9F95]/30' : 
+                                  isLocked ? 'bg-gradient-to-br from-[#E2E8F0] to-[#F7FAFC] border-[#E2E8F0]' :
+                                  'bg-white border-[#E2E8F0]'}
+                            `}
+                        >
+                            {/* Icon */}
+                            <div className="flex justify-between items-start">
+                                <div className={`text-3xl ${isLocked ? 'opacity-40 grayscale' : ''}`}>
+                                    {task.icon}
+                                </div>
+                                {isLocked && <Lock size={16} className="text-[#A0AEC0]" />}
+                                {isActive && <CheckCircle size={16} className="text-[#7E9F95] animate-pulse" />}
                             </div>
-                            {item.isLocked && (
-                                <div className="bg-white/80 p-1.5 rounded-full">
-                                    <Lock size={12} className="text-[#D68C7F]" />
+                            
+                            {/* Content */}
+                            <div>
+                                <h4 className={`text-sm font-semibold leading-tight mb-1 ${
+                                    isActive ? 'text-[#2D3748]' : 
+                                    isLocked ? 'text-[#A0AEC0]' : 
+                                    'text-[#4A4A4A]'
+                                }`}>
+                                    {task.title}
+                                </h4>
+                                
+                                {isActive && task.timeLeft && (
+                                    <p className="text-[10px] text-[#7E9F95] font-bold">⏱ {task.timeLeft} kaldı</p>
+                                )}
+                                
+                                {isLocked && task.reward && (
+                                    <div className="mt-2 px-2 py-1 bg-white/60 rounded-lg inline-block">
+                                        <p className="text-[9px] text-[#A0AEC0] font-medium">🎁 Ödül: {task.reward}</p>
+                                    </div>
+                                )}
+
+                                {isPending && task.time && (
+                                    <p className="text-[10px] text-[#A0AEC0]">{task.time}</p>
+                                )}
+                            </div>
+
+                            {/* Connection Line (Arrow to next card if applicable) */}
+                            {isActive && task.id === 1 && (
+                                <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 text-[#7E9F95]">
+                                    <ChevronRight size={20} className="opacity-40" />
                                 </div>
                             )}
-                        </div>
-                        
-                        <div>
-                            <h4 className={`text-sm font-semibold leading-tight mb-1 ${item.textColor}`}>
-                                {item.title}
-                            </h4>
-                            <p className={`text-[10px] opacity-80 ${item.textColor}`}>
-                                {item.subtitle}
-                            </p>
-                        </div>
-                    </motion.div>
-                ))}
+                        </motion.div>
+                    );
+                })}
             </div>
         </section>
 
-        {/* Daily Quote (Reduced Size) */}
+        {/* 4. BEHAVIOR DECODER (Insight Feed) */}
         <section className="pb-6">
-            <div className="bg-[#FAFAF8] border border-[#E2E8F0] rounded-2xl p-4 flex items-start space-x-3">
-                <Sparkles size={16} className="text-[#D68C7F] flex-shrink-0 mt-1" />
-                <div>
-                    <p className="text-xs text-[#4A4A4A] italic leading-relaxed">
-                        "Mükemmel ebeveyn yoktur. Sadece onarmayı bilen gerçek ebeveynler vardır."
-                    </p>
-                    <p className="text-[10px] text-[#A0AEC0] mt-2 text-right">- D. Winnicott</p>
+            <div className="flex items-center justify-between mb-3 px-1">
+                <h3 className="text-sm font-serif text-[#2D3748] italic">Davranış Çözümleyici</h3>
+            </div>
+
+            {/* Daily Insight Card */}
+            <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:border-[#7E9F95]/30 transition-all cursor-pointer">
+                <div className="flex items-start space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-[#E8C3B0]/20 flex items-center justify-center flex-shrink-0">
+                        <Lightbulb size={18} className="text-[#D68C7F]" />
+                    </div>
+                    <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-[#2D3748] leading-tight mb-2">
+                            {profile.name} bugün neden sözünü kesti?
+                        </h4>
+                        <p className="text-xs text-[#718096] leading-relaxed mb-3">
+                            Dürtüsel DEHB'de beyin, uyarıları filtrelemekte zorlanır. Bu yüzden {profile.name} cümleni bitirmeden cevap veriyor olabilir. Bu kasıtlı değil, nörolojik.
+                        </p>
+                        <div className="flex items-center text-[#7E9F95] text-xs font-medium">
+                            <span>Daha Fazlasını Öğren</span>
+                            <ChevronRight size={14} className="ml-1" />
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            {/* Additional Insight (Optional) */}
+            <div className="mt-3 bg-[#FAFAF8] border border-[#E2E8F0] rounded-2xl p-4 flex items-center space-x-3">
+                <Sparkles size={16} className="text-[#7E9F95] flex-shrink-0" />
+                <p className="text-xs text-[#4A4A4A] leading-relaxed">
+                    <span className="font-semibold">İpucu:</span> Ekran süresini azaltmak için önce {profile.name}'ye "5 dakika sonra kapatıyoruz" diye hatırlat, sonra sayaç kullan.
+                </p>
             </div>
         </section>
 
@@ -226,3 +290,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
     </div>
   );
 };
+
+// Helper Function
+function calculateParentEnergy(nervousSystem: string): number {
+    if (nervousSystem.includes("Güvende") || nervousSystem.includes("Normal")) return 75;
+    if (nervousSystem.includes("Suçluluk") || nervousSystem.includes("Tetik")) return 40;
+    if (nervousSystem.includes("Donma") || nervousSystem.includes("Tükenmiş")) return 20;
+    return 50;
+}
