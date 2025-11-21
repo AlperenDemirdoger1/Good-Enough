@@ -19,6 +19,51 @@ interface DashboardScreenProps {
   profile: ChildProfile;
 }
 
+// Mila Logo Component (Mother & Child Embrace)
+const MilaLogo = ({ size = 40 }: { size?: number }) => (
+  <svg viewBox="0 0 100 100" width={size} height={size} className="flex-shrink-0">
+    {/* Mother Figure - Sage Green */}
+    <path 
+      d="M30 20 Q 20 30, 20 45 Q 20 65, 35 75 Q 45 82, 50 85 Q 45 80, 40 70 Q 35 60, 35 45 Q 35 30, 40 25 Z" 
+      fill="none" 
+      stroke="#7E9F95" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="opacity-90"
+    />
+    <path 
+      d="M 40 25 Q 50 15, 60 20 Q 70 25, 75 35" 
+      fill="none" 
+      stroke="#7E9F95" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      className="opacity-90"
+    />
+    
+    {/* Child Figure - Terracotta */}
+    <path 
+      d="M 50 45 Q 55 40, 62 42 Q 68 44, 70 50 Q 72 58, 68 65 Q 64 70, 58 70 Q 52 70, 48 65" 
+      fill="none" 
+      stroke="#D68C7F" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="60" cy="50" r="8" fill="#D68C7F" opacity="0.15" />
+    
+    {/* Connecting Arc (Mother's arm around child) */}
+    <path 
+      d="M 75 35 Q 78 45, 75 55 Q 72 65, 65 72" 
+      fill="none" 
+      stroke="#D68C7F" 
+      strokeWidth="3.5" 
+      strokeLinecap="round"
+      className="opacity-85"
+    />
+  </svg>
+);
+
 // MOCK DATA (Replace with real data later)
 const CRISIS_SCENARIOS = [
   "Vuruyor / Fiziksel Saldırganlık",
@@ -47,10 +92,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       <div className="absolute top-[10%] right-[-10%] w-72 h-72 bg-[#E8C3B0] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
 
       {/* Header */}
-      <div className="pt-10 px-6 pb-3 flex justify-between items-center relative z-10 bg-[#FAFAF8]/95 backdrop-blur-sm">
-        <div>
-          <p className="text-[#A0AEC0] text-[10px] uppercase tracking-wider font-medium">Kontrol Merkezi</p>
-          <h1 className="text-xl font-serif text-[#2D3748]">{profile.name} için Bugün</h1>
+      <div className="pt-8 px-6 pb-3 flex justify-between items-center relative z-10 bg-[#FAFAF8]/95 backdrop-blur-sm">
+        <div className="flex items-center space-x-3">
+          <MilaLogo size={44} />
+          <div>
+            <p className="text-[#A0AEC0] text-[10px] uppercase tracking-wider font-medium">Kontrol Merkezi</p>
+            <h1 className="text-xl font-serif text-[#2D3748]">{profile.name} için Bugün</h1>
+          </div>
         </div>
         <div className="w-9 h-9 rounded-full bg-white border border-[#E2E8F0] flex items-center justify-center shadow-sm relative">
              <Bell size={16} className="text-[#7E9F95]" />
