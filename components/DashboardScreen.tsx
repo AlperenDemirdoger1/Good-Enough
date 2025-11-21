@@ -13,7 +13,11 @@ import {
   BrainCircuit, 
   BookOpen, 
   X,
-  Clock
+  Clock,
+  Mic,
+  Zap,
+  CheckCircle,
+  ArrowRight
 } from 'lucide-react';
 
 interface DashboardScreenProps {
@@ -37,6 +41,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
   const [showAddTask, setShowAddTask] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', emoji: '📌', time: '' });
   const [toast, setToast] = useState<{ message: string; action?: () => void } | null>(null);
+  
+  // Behavioral Translator State
+  const [showTranslator, setShowTranslator] = useState(false);
+  const [translatorInput, setTranslatorInput] = useState('');
+  const [selectedContext, setSelectedContext] = useState<string | null>(null);
+  const [isDecoding, setIsDecoding] = useState(false);
+  const [translatorResult, setTranslatorResult] = useState<{
+    diagnosis: string;
+    laggingSkill: string;
+    script: string;
+    preventionTip?: string;
+  } | null>(null);
+
+  // Context Chips for Quick Selection
+  const contextChips = [
+    { id: 'transition', label: 'Geçiş Anı', emoji: '🔄' },
+    { id: 'screen', label: 'Ekran', emoji: '📱' },
+    { id: 'sleep', label: 'Uyku', emoji: '🌙' },
+    { id: 'food', label: 'Yemek', emoji: '🍽️' },
+    { id: 'sibling', label: 'Kardeş', emoji: '👶' },
+    { id: 'sensory', label: 'Duyu', emoji: '👂' },
+  ];
 
   const handleAddTask = () => {
     if (!newTask.title.trim()) return;
@@ -74,6 +100,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       });
       setTimeout(() => setToast(null), 4000);
     }
+  };
+
+  const handleDecodeSignal = () => {
+    if (!translatorInput.trim() && !selectedContext) return;
+    
+    setIsDecoding(true);
+    
+    // Simulate AI processing
+    setTimeout(() => {
+      // Mock result based on input (in production, this calls Gemini API)
+      setTranslatorResult({
+        diagnosis: 'Duyu Hassasiyeti (Sensory Overload)',
+        laggingSkill: 'Tolerans (Esnek Düşünme)',
+        script: '"Vücudunun şu an rahatsız olduğunu görüyorum. Çorabın dokunuyor ve bu seni rahatsız ediyor. Birlikte rahat bir şey bulalım."',
+        preventionTip: 'Sabah dikişsiz çorap seçeneği sun'
+      });
+      setIsDecoding(false);
+      setShowTranslator(false);
+    }, 2000);
   };
 
   // Mock Data for Discovery Carousel
@@ -224,23 +269,96 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
           </div>
         </section>
 
-        {/* 2. Q&A SECTION (Utility - Engagement) */}
+        {/* 2. BEHAVIORAL TRANSLATOR CARD (The Entry Point) */}
         <section>
-            <div className="relative group">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <Search size={18} className="text-[#A0AEC0]" />
+          {translatorResult ? (
+            // Show Result Card
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 rounded-3xl p-6 border-2 border-indigo-200 shadow-lg relative overflow-hidden"
+            >
+              {/* Decorative Background */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-200/30 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                {/* Diagnosis Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-indigo-600/20 flex items-center justify-center">
+                      <CheckCircle size={16} className="text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Tespit</p>
+                      <p className="text-sm font-semibold text-indigo-900">{translatorResult.diagnosis}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setTranslatorResult(null)}
+                    className="w-7 h-7 rounded-full bg-white/60 flex items-center justify-center"
+                  >
+                    <X size={14} className="text-indigo-600" />
+                  </button>
+                  </div>
+                  
+                {/* Lagging Skill */}
+                <div className="mb-4 p-3 bg-white/60 rounded-xl">
+                  <p className="text-[10px] font-bold text-purple-600 uppercase tracking-wider mb-1">Eksik Beceri</p>
+                  <p className="text-xs text-purple-900 font-medium">{translatorResult.laggingSkill}</p>
                 </div>
-                <input 
-                    type="text" 
-                    placeholder={`Mila, ${profile.name} uyumuyor, ne yapmalıyım?`}
-                    className="w-full py-4 pl-12 pr-4 bg-white border border-[#E2E8F0] rounded-2xl text-sm text-[#4A4A4A] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7E9F95]/50 placeholder:text-[#A0AEC0] placeholder:font-light"
-                />
-                <div className="absolute inset-y-0 right-2 flex items-center">
-                    <button className="bg-[#7E9F95] text-white p-2 rounded-xl shadow-sm opacity-0 group-focus-within:opacity-100 transition-opacity">
-                        <ChevronRight size={16} />
-                    </button>
+
+                {/* The Script (Main Content) */}
+                <div className="mb-4">
+                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Şimdi Ne Söylemeli?</p>
+                  <p className="text-base font-medium text-slate-800 leading-relaxed italic">
+                    {translatorResult.script}
+                  </p>
                 </div>
-            </div>
+
+                {/* Prevention Tip */}
+                {translatorResult.preventionTip && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start space-x-2">
+                    <Sparkles size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Önleme Taktiği</p>
+                      <p className="text-xs text-amber-900">{translatorResult.preventionTip}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Button */}
+                <button className="w-full mt-4 py-3 bg-indigo-600 text-white rounded-xl font-semibold text-sm shadow-lg flex items-center justify-center space-x-2 hover:bg-indigo-700 transition-colors">
+                  <Lock size={16} />
+                  <span>Önleme Oyununu Aç (Premium)</span>
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            // Translator Entry Card
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowTranslator(true)}
+              className="w-full bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 rounded-3xl p-6 shadow-xl relative overflow-hidden group"
+            >
+              {/* Animated Background Glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400/0 via-white/20 to-purple-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <BrainCircuit size={24} className="text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-white/80 text-[10px] font-bold uppercase tracking-wider mb-1">Davranış Çeviricisi</p>
+                    <p className="text-white text-sm font-semibold leading-tight">Şu anki krizin altında ne var?</p>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <ArrowRight size={16} className="text-white" />
+                </div>
+              </div>
+            </motion.button>
+          )}
         </section>
 
         {/* 3. DISCOVERY CAROUSEL (Discovery - Upsell) */}
@@ -387,6 +505,126 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
                     Ekle
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Behavioral Translator Bottom Sheet */}
+      <AnimatePresence>
+        {showTranslator && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowTranslator(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm z-30"
+            />
+            
+            {/* Bottom Sheet */}
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-indigo-50 to-white rounded-t-[32px] shadow-2xl z-40 max-h-[80vh] overflow-y-auto"
+            >
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center">
+                      <Sparkles size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-serif text-[#2D3748]">Davranış Çeviricisi</h3>
+                      <p className="text-[10px] text-indigo-600 font-medium">Sinyali Çözelim</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowTranslator(false)}
+                    className="w-8 h-8 rounded-full bg-[#F7FAFC] flex items-center justify-center"
+                  >
+                    <X size={16} className="text-[#A0AEC0]" />
+                  </button>
+                </div>
+
+                {/* Quick Context Chips */}
+                <div className="mb-6">
+                  <label className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-3 block">
+                    Hızlı Bağlam Seç
+                  </label>
+                  <div className="flex space-x-2 overflow-x-auto pb-2 -mx-2 px-2">
+                    {contextChips.map((chip) => (
+                      <button
+                        key={chip.id}
+                        onClick={() => setSelectedContext(chip.id === selectedContext ? null : chip.id)}
+                        className={`flex-shrink-0 px-4 py-2.5 rounded-full text-sm font-medium transition-all flex items-center space-x-2 ${
+                          selectedContext === chip.id
+                            ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-300'
+                            : 'bg-white border-2 border-indigo-200 text-indigo-600 hover:border-indigo-400'
+                        }`}
+                      >
+                        <span>{chip.emoji}</span>
+                        <span>{chip.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Main Text Input */}
+                <div className="mb-6">
+                  <label className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-3 block">
+                    Tam Olarak Ne Oldu?
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      value={translatorInput}
+                      onChange={(e) => setTranslatorInput(e.target.value)}
+                      placeholder="Örn: 'Çorabının dikişi rahatsız etti' veya 'Kardeşi oyununu bozdu'..."
+                      rows={4}
+                      className="w-full px-4 py-3 bg-white border-2 border-indigo-200 rounded-2xl text-sm text-[#2D3748] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-[#A0AEC0] resize-none"
+                    />
+                    <button
+                      className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center transition-colors"
+                      title="Sesli Kayıt"
+                    >
+                      <Mic size={18} className="text-indigo-600" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Decode Button */}
+                <button
+                  onClick={handleDecodeSignal}
+                  disabled={!translatorInput.trim() && !selectedContext}
+                  className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-base shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center space-x-2 hover:shadow-2xl transition-all relative overflow-hidden group"
+                >
+                  {isDecoding ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      />
+                      <span>Sinyal Çözülüyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap size={20} />
+                      <span>Sinyali Çöz</span>
+                    </>
+                  )}
+                  
+                  {/* Animated Glow on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/0 via-white/20 to-purple-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </button>
+
+                <p className="text-[10px] text-center text-[#A0AEC0] mt-4 leading-relaxed">
+                  Mila, Ross Greene'in CPS modelini kullanarak davranışın altındaki ihtiyacı tespit eder.
+                </p>
               </div>
             </motion.div>
           </>
