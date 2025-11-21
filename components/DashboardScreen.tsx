@@ -478,5 +478,3 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
     </div>
   );
 };
-
-export { DashboardScreen };
