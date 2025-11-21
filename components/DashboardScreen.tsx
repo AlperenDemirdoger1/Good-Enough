@@ -22,7 +22,17 @@ import {
   TrendingUp,
   Headphones,
   Video,
-  Wrench
+  Wrench,
+  Heart,
+  MessageSquare,
+  Award,
+  Filter,
+  Coffee,
+  ListChecks,
+  Battery,
+  Home,
+  Sparkle,
+  Target
 } from 'lucide-react';
 
 interface DashboardScreenProps {
@@ -278,6 +288,206 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
     </div>
   );
 
+  // Render My Home Tab (Gamified Living Room)
+  const renderMyHome = () => {
+    // Determine state based on daily score
+    const getHomeState = () => {
+      if (dailyScore <= 30) return 'chaos';
+      if (dailyScore <= 70) return 'progress';
+      return 'zen';
+    };
+
+    const homeState = getHomeState();
+
+    const stateConfig = {
+      chaos: {
+        bg: 'bg-gradient-to-b from-slate-600 via-slate-500 to-slate-400',
+        emoji: '🌧️',
+        headline: 'Fırtınalı Bir Başlangıç',
+        subtext: 'Küçük bir adım atarak güneşi açtırabilirsin.',
+        illustration: '🏠💨',
+        atmosphereColor: 'from-blue-900/20 to-slate-700/20'
+      },
+      progress: {
+        bg: 'bg-gradient-to-b from-amber-200 via-orange-100 to-yellow-50',
+        emoji: '⛅',
+        headline: 'Bulutlar Dağılıyor',
+        subtext: 'Evde denge sağlanmaya başladı.',
+        illustration: '🏡☀️',
+        atmosphereColor: 'from-amber-400/20 to-orange-300/20'
+      },
+      zen: {
+        bg: 'bg-gradient-to-b from-teal-100 via-emerald-50 to-green-50',
+        emoji: '☀️',
+        headline: 'Huzur Modu Aktif',
+        subtext: 'Bugün harika bir iş çıkardın.',
+        illustration: '🏠✨',
+        atmosphereColor: 'from-teal-400/20 to-green-300/20'
+      }
+    };
+
+    const currentState = stateConfig[homeState];
+
+    const magicActions = [
+      {
+        id: 1,
+        icon: ListChecks,
+        label: 'Kaosu Düzenle',
+        sublabel: 'Rutinleri Tamamla',
+        points: '+20 Puan',
+        color: 'from-teal-500 to-emerald-500',
+        action: () => setActiveTab('home')
+      },
+      {
+        id: 2,
+        icon: Coffee,
+        label: 'Enerjini Yükselt',
+        sublabel: 'Kendine Vakit Ayır',
+        points: '+15 Puan',
+        color: 'from-amber-500 to-orange-500',
+        action: () => setDailyScore(prev => Math.min(100, prev + 15))
+      },
+      {
+        id: 3,
+        icon: BrainCircuit,
+        label: 'Sinyalleri Çöz',
+        sublabel: 'Kriz Analizi Yap',
+        points: '+30 Puan',
+        color: 'from-indigo-500 to-purple-500',
+        action: () => setShowTranslator(true)
+      },
+      {
+        id: 4,
+        icon: Users,
+        label: 'Köye Katıl',
+        sublabel: 'Toplulukla Bağlan',
+        points: '+10 Puan',
+        color: 'from-pink-500 to-rose-500',
+        action: () => setActiveTab('community')
+      }
+    ];
+
+    return (
+      <div className="space-y-6 pb-6">
+        {/* Progress Bar at Top */}
+        <div className="px-1">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Günlük Uyum Seviyesi</span>
+            <span className="text-sm font-bold text-slate-900">{dailyScore}%</span>
+          </div>
+          <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${dailyScore}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className={`h-full bg-gradient-to-r ${
+                homeState === 'chaos' ? 'from-slate-500 to-slate-600' :
+                homeState === 'progress' ? 'from-amber-500 to-orange-500' :
+                'from-teal-500 to-emerald-500'
+              }`}
+            />
+          </div>
+        </div>
+
+        {/* Dynamic Living Room Illustration */}
+        <motion.div
+          key={homeState}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className={`relative rounded-[40px] p-8 overflow-hidden shadow-2xl ${currentState.bg} transition-all duration-700`}
+        >
+          {/* Atmosphere Overlay */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${currentState.atmosphereColor} backdrop-blur-[2px]`}></div>
+
+          {/* Content */}
+          <div className="relative z-10 text-center">
+            {/* Weather/Mood Emoji */}
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-6xl mb-4"
+            >
+              {currentState.emoji}
+            </motion.div>
+
+            {/* Illustration */}
+            <div className="text-7xl mb-4 opacity-80">
+              {currentState.illustration}
+            </div>
+
+            {/* Headline */}
+            <h2 className="text-2xl font-serif text-slate-900 mb-2 tracking-tight">
+              {currentState.headline}
+            </h2>
+
+            {/* Subtext */}
+            <p className="text-sm text-slate-700 opacity-80">
+              {currentState.subtext}
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Magic Actions Grid (2x2) */}
+        <div>
+          <h3 className="text-sm font-serif text-slate-800 mb-3 px-1">Sihirli Aksiyonlar</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {magicActions.map((action) => {
+              const IconComponent = action.icon;
+              return (
+                <motion.button
+                  key={action.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={action.action}
+                  className="relative bg-white rounded-3xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-all overflow-hidden group"
+                >
+                  {/* Gradient Overlay on Hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
+
+                  <div className="relative z-10">
+                    {/* Icon */}
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-3 shadow-lg`}>
+                      <IconComponent size={24} className="text-white" />
+                    </div>
+
+                    {/* Label */}
+                    <h4 className="text-sm font-bold text-slate-900 leading-tight mb-1">
+                      {action.label}
+                    </h4>
+                    <p className="text-xs text-slate-500 mb-2">
+                      {action.sublabel}
+                    </p>
+
+                    {/* Points Badge */}
+                    <div className={`inline-block px-2 py-1 rounded-full bg-gradient-to-r ${action.color} text-white text-[10px] font-bold`}>
+                      {action.points}
+                    </div>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Daily Tip */}
+        <div className="bg-slate-50 rounded-3xl p-5 border border-slate-200">
+          <div className="flex items-start space-x-3">
+            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+              💡
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 mb-1">Günün İpucu</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Her küçük adım, evin atmosferini değiştirir. Mükemmel olmak zorunda değilsin, sadece denemeye devam et.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Academy Data - Learning Tracks (Masterclass Style)
   const learningTracks = [
     {
@@ -325,6 +535,80 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       ]
     }
   ];
+
+  // My Home - Daily Score & Gamification
+  const [dailyScore, setDailyScore] = useState(45); // Mock daily score (0-100)
+
+  // Community Data - Mila's Village
+  const [pollVote, setPollVote] = useState<'A' | 'B' | null>(null);
+  const [huggedConfessions, setHuggedConfessions] = useState<Set<number>>(new Set());
+  const [activeFilter, setActiveFilter] = useState('Tümü');
+
+  const dailyPoll = {
+    question: "Bugün evdeki hava nasıldı?",
+    optionA: { text: "Sakin ve huzurlu 🌿", votes: 8234, percentage: 42 },
+    optionB: { text: "Kaos ve fırtına ⚡", votes: 11196, percentage: 58 },
+    totalVoters: 19430
+  };
+
+  const confessions = [
+    { id: 1, text: "Bugün kendimi banyoya kilitledim 🤫", hugs: 450, color: 'bg-yellow-50', rotation: 'rotate-[-2deg]' },
+    { id: 2, text: "Çocuğuma bağırdım, sonra ağladım 💔", hugs: 723, color: 'bg-pink-50', rotation: 'rotate-[1deg]' },
+    { id: 3, text: "İlk defa 'kötü anne' diye düşündüm", hugs: 612, color: 'bg-blue-50', rotation: 'rotate-[-1deg]' },
+    { id: 4, text: "Akşam yemeğine çikolata verdim 🍫", hugs: 389, color: 'bg-green-50', rotation: 'rotate-[2deg]' },
+    { id: 5, text: "Her gün mükemmel olmak zorunda değilim", hugs: 891, color: 'bg-purple-50', rotation: 'rotate-[-1deg]' },
+  ];
+
+  const discussions = [
+    {
+      id: 1,
+      avatar: '🦉',
+      username: 'Uykusuz Baykuş',
+      badge: 'top',
+      category: 'Uyku',
+      title: '3 yaşında hala gece kalkıyor, tavsiyeleriniz?',
+      replies: 23,
+      time: '2 saat önce'
+    },
+    {
+      id: 2,
+      avatar: '🐰',
+      username: 'Telaşlı Tavşan',
+      badge: null,
+      category: 'Beslenme',
+      title: 'Sebze yemeyen çocuk için yaratıcı fikirler',
+      replies: 45,
+      time: '5 saat önce'
+    },
+    {
+      id: 3,
+      avatar: '🦊',
+      username: 'Bilge Tilki',
+      badge: 'top',
+      category: 'Okul',
+      title: 'Öğretmenle nasıl daha iyi iletişim kurabilirim?',
+      replies: 31,
+      time: '1 gün önce'
+    },
+  ];
+
+  const filters = ['Tümü', 'Uyku', 'Beslenme', 'Okul', 'Kardeş'];
+
+  const handlePollVote = (choice: 'A' | 'B') => {
+    setPollVote(choice);
+  };
+
+  const handleHugConfession = (id: number) => {
+    setHuggedConfessions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
 
   // Discovery Rail - 3 Pillars (Education, Discovery, Community)
   const discoveryCards = [
@@ -749,12 +1033,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
           </div>
         )}
 
-        {/* Coach Tab - Coming Soon */}
-        {activeTab === 'coach' && (
-          <div className="flex items-center justify-center h-64">
-            <p className="text-stone-400">Koç sekmesi yakında...</p>
-          </div>
-        )}
+        {/* My Home Tab */}
+        {activeTab === 'myhome' && renderMyHome()}
       </div>
 
       {/* Add Task Modal */}
