@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChildProfile } from '../types';
 import { NAV_ITEMS } from '../constants';
 import { 
@@ -7,20 +7,74 @@ import {
   Bell, 
   Search, 
   Lock, 
-  Trophy, 
+  Plus,
   ChevronRight, 
   PlayCircle, 
   BrainCircuit, 
   BookOpen, 
-  Star
+  X,
+  Clock
 } from 'lucide-react';
 
 interface DashboardScreenProps {
   profile: ChildProfile;
 }
 
+interface Task {
+  id: string;
+  title: string;
+  emoji: string;
+  time?: string;
+  status: 'pending' | 'green' | 'yellow' | 'red';
+}
+
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => {
   const [activeTab, setActiveTab] = useState('chat');
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: '1', title: 'Ayakkabılarını Giy', emoji: '👟', time: '08:00', status: 'pending' },
+    { id: '2', title: 'Kahvaltı Yap', emoji: '🥐', time: '08:30', status: 'pending' },
+  ]);
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [newTask, setNewTask] = useState({ title: '', emoji: '📌', time: '' });
+  const [toast, setToast] = useState<{ message: string; action?: () => void } | null>(null);
+
+  const handleAddTask = () => {
+    if (!newTask.title.trim()) return;
+    
+    const task: Task = {
+      id: Date.now().toString(),
+      title: newTask.title,
+      emoji: newTask.emoji,
+      time: newTask.time || undefined,
+      status: 'pending',
+    };
+    
+    setTasks([...tasks, task]);
+    setNewTask({ title: '', emoji: '📌', time: '' });
+    setShowAddTask(false);
+  };
+
+  const handleTaskFeedback = (taskId: string, feedback: 'green' | 'yellow' | 'red') => {
+    setTasks(tasks.map(t => t.id === taskId ? { ...t, status: feedback } : t));
+    
+    if (feedback === 'green') {
+      // Celebrate!
+      setToast({ message: '🎉 Harika! Sorunsuz geçti!' });
+      setTimeout(() => setToast(null), 2000);
+    } else if (feedback === 'yellow') {
+      setToast({
+        message: '💡 Zorlandınız mı? Gelecek sefer için Mila\'dan taktik al.',
+        action: () => setActiveTab('chat')
+      });
+      setTimeout(() => setToast(null), 4000);
+    } else if (feedback === 'red') {
+      setToast({
+        message: '🆘 Kriz anı mı? Mila ile sakinleşme senaryosu çalış.',
+        action: () => setActiveTab('chat')
+      });
+      setTimeout(() => setToast(null), 4000);
+    }
+  };
 
   // Mock Data for Discovery Carousel
   const discoveryItems = [
@@ -77,48 +131,96 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pb-24 px-6 space-y-6 scrollbar-hide relative z-10 pt-2">
         
-        {/* 1. GAMIFICATION SECTION (Hero - Retention Hook) */}
+        {/* 1. TODAY'S FOCUS - ROUTINES (Dynamic Task List) */}
         <section>
-          <div className="bg-white rounded-3xl p-5 border border-[#F0F0F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden">
-              {/* Progress Header */}
-              <div className="flex justify-between items-end mb-3">
-                  <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                          <Trophy size={14} className="text-[#D68C7F]" />
-                          <span className="text-[10px] font-bold text-[#D68C7F] uppercase tracking-wider">Seviye 3</span>
-                      </div>
-                      <h3 className="text-lg font-serif text-[#2D3748] leading-none">Bilinçli Ebeveyn</h3>
-                  </div>
-                  <div className="text-right">
-                      <span className="text-xs font-medium text-[#718096]">%65</span>
-                  </div>
-              </div>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h3 className="text-sm font-serif text-[#2D3748]">Bugünün Odağı</h3>
+            <button 
+              onClick={() => setShowAddTask(true)}
+              className="flex items-center space-x-1 text-[#7E9F95] text-xs font-medium"
+            >
+              <Plus size={14} />
+              <span>Görev Ekle</span>
+            </button>
+          </div>
 
-              {/* Progress Bar */}
-              <div className="h-2 w-full bg-[#F7FAFC] rounded-full mb-4 overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '65%' }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-[#D68C7F] to-[#E8C3B0] rounded-full"
-                  ></motion.div>
-              </div>
-
-              {/* Daily Task CTA */}
-              <div className="flex items-center justify-between bg-[#FAFAF8] rounded-2xl p-3 border border-[#F0F0F0]">
-                  <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-[#7E9F95]/10 flex items-center justify-center text-[#7E9F95]">
-                          <PlayCircle size={16} fill="currentColor" className="text-[#7E9F95]/20" />
-                      </div>
-                      <div>
-                          <p className="text-[10px] text-[#A0AEC0]">Bugünkü Görevin</p>
-                          <p className="text-xs font-medium text-[#2D3748]">Ders 4: Sınır Koyma</p>
-                      </div>
+          {/* Task List */}
+          <div className="space-y-2">
+            {tasks.map((task) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`bg-white rounded-2xl p-4 border shadow-sm transition-all ${
+                  task.status === 'pending' ? 'border-[#E2E8F0]' :
+                  task.status === 'green' ? 'border-[#68D391] bg-[#F0FFF4]' :
+                  task.status === 'yellow' ? 'border-[#F6AD55] bg-[#FFFAF0]' :
+                  'border-[#FC8181] bg-[#FFF5F5]'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  {/* Task Info */}
+                  <div className="flex items-center space-x-3 flex-1">
+                    <span className="text-2xl">{task.emoji}</span>
+                    <div className="flex-1">
+                      <p className={`text-sm font-medium ${
+                        task.status !== 'pending' ? 'line-through opacity-60' : 'text-[#2D3748]'
+                      }`}>
+                        {task.title}
+                      </p>
+                      {task.time && (
+                        <p className="text-[10px] text-[#A0AEC0] flex items-center mt-0.5">
+                          <Clock size={10} className="mr-1" />
+                          {task.time}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <button className="bg-[#2D3748] text-white rounded-full p-2 shadow-md hover:scale-105 transition-transform">
-                      <ChevronRight size={16} />
-                  </button>
+                  
+                  {/* Traffic Light Feedback */}
+                  {task.status === 'pending' && (
+                    <div className="flex items-center space-x-1">
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleTaskFeedback(task.id, 'green')}
+                        className="w-7 h-7 rounded-full bg-[#68D391]/20 hover:bg-[#68D391]/40 flex items-center justify-center transition-colors"
+                        title="Sorunsuz geçti"
+                      >
+                        <span className="text-sm">🟢</span>
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleTaskFeedback(task.id, 'yellow')}
+                        className="w-7 h-7 rounded-full bg-[#F6AD55]/20 hover:bg-[#F6AD55]/40 flex items-center justify-center transition-colors"
+                        title="Zorlandık"
+                      >
+                        <span className="text-sm">🟡</span>
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleTaskFeedback(task.id, 'red')}
+                        className="w-7 h-7 rounded-full bg-[#FC8181]/20 hover:bg-[#FC8181]/40 flex items-center justify-center transition-colors"
+                        title="Kriz/Başaramadık"
+                      >
+                        <span className="text-sm">🔴</span>
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+
+            {tasks.length === 0 && (
+              <div className="bg-white rounded-2xl p-8 border border-[#E2E8F0] text-center">
+                <p className="text-sm text-[#A0AEC0]">Henüz görev eklenmedi</p>
+                <button
+                  onClick={() => setShowAddTask(true)}
+                  className="mt-3 text-xs text-[#7E9F95] font-medium"
+                >
+                  İlk görevi ekle →
+                </button>
               </div>
+            )}
           </div>
         </section>
 
@@ -194,6 +296,127 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ profile }) => 
         </section>
 
       </div>
+
+      {/* Add Task Modal */}
+      <AnimatePresence>
+        {showAddTask && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAddTask(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm z-30"
+            />
+            
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[32px] p-6 shadow-2xl z-40"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-serif text-[#2D3748]">Yeni Görev Ekle</h3>
+                <button
+                  onClick={() => setShowAddTask(false)}
+                  className="w-8 h-8 rounded-full bg-[#F7FAFC] flex items-center justify-center"
+                >
+                  <X size={16} className="text-[#A0AEC0]" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Emoji Picker (Simple) */}
+                <div>
+                  <label className="text-xs font-medium text-[#718096] mb-2 block">İkon Seç</label>
+                  <div className="flex space-x-2 overflow-x-auto pb-2">
+                    {['📌', '👟', '🥐', '🎒', '📚', '🛁', '🌙', '🎨', '⚽', '🎮'].map((emoji) => (
+                      <button
+                        key={emoji}
+                        onClick={() => setNewTask({ ...newTask, emoji })}
+                        className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${
+                          newTask.emoji === emoji
+                            ? 'bg-[#7E9F95]/20 ring-2 ring-[#7E9F95]'
+                            : 'bg-[#F7FAFC] hover:bg-[#E2E8F0]'
+                        }`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Title Input */}
+                <div>
+                  <label className="text-xs font-medium text-[#718096] mb-2 block">Görev Adı</label>
+                  <input
+                    type="text"
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    placeholder="Örn: Ayakkabılarını giy"
+                    className="w-full px-4 py-3 bg-[#F7FAFC] border border-[#E2E8F0] rounded-xl text-sm text-[#2D3748] focus:outline-none focus:ring-2 focus:ring-[#7E9F95]/50"
+                  />
+                </div>
+
+                {/* Time Input (Optional) */}
+                <div>
+                  <label className="text-xs font-medium text-[#718096] mb-2 block">Saat (Opsiyonel)</label>
+                  <input
+                    type="time"
+                    value={newTask.time}
+                    onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
+                    className="w-full px-4 py-3 bg-[#F7FAFC] border border-[#E2E8F0] rounded-xl text-sm text-[#2D3748] focus:outline-none focus:ring-2 focus:ring-[#7E9F95]/50"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3 pt-2">
+                  <button
+                    onClick={() => setShowAddTask(false)}
+                    className="flex-1 py-3 bg-[#F7FAFC] text-[#718096] rounded-xl font-medium text-sm"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={handleAddTask}
+                    disabled={!newTask.title.trim()}
+                    className="flex-1 py-3 bg-[#7E9F95] text-white rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Ekle
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="absolute bottom-24 left-6 right-6 bg-[#2D3748] text-white rounded-2xl p-4 shadow-2xl z-50 flex items-center justify-between"
+          >
+            <p className="text-sm font-medium flex-1">{toast.message}</p>
+            {toast.action && (
+              <button
+                onClick={() => {
+                  toast.action?.();
+                  setToast(null);
+                }}
+                className="ml-3 px-3 py-1.5 bg-white/20 rounded-lg text-xs font-bold"
+              >
+                Aç
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Bottom Navigation */}
       <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-[#F0F0F0] px-6 py-4 flex justify-around z-20">
